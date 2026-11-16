@@ -1,6 +1,9 @@
 
-from analyzer.sysmon_reader import read_sysmon_event
+
+
+from analyzer.sysmon_reader import read_sysmon_events
 from analyzer.report_generator import generate_report
+from analyzer.statistics import generate_statistics
 from detection.rules import analyze_event
 from detection.mitre_mapping import map_mitre_technique
 
@@ -8,36 +11,40 @@ from detection.mitre_mapping import map_mitre_technique
 def main():
     print("=== AI CYBER THREAT ANALYZER ===")
 
-    # 1. Ler evento Sysmon
-    event = read_sysmon_event("data/sysmon_sample.json")
+    events = read_sysmon_events("data/sysmon_sample.json")
+    results = []
 
-    # 2. Detectar comportamento suspeito
-    result = analyze_event(event)
+    for index, event in enumerate(events, start=1):
+        result = analyze_event(event)
+        mitre = map_mitre_technique(event["process_name"])
 
-    # 3. Mapear técnica MITRE
-    mitre = map_mitre_technique(event["process_name"])
+        results.append(result)
 
-    # 4. Exibir resultado
-    print("\n=== RESULTADO DA ANALISE ===")
-    print(f"Processo: {event['process_name']}")
-    print(f"Processo pai: {event['parent_process']}")
-    print(f"Suspeito: {result['suspicious']}")
-    print(f"Risco: {result['risk']}")
+        print(f"\n=== EVENTO {index} ===")
+        print(f"Processo: {event['process_name']}")
+        print(f"Processo pai: {event['parent_process']}")
+        print(f"Suspeito: {result['suspicious']}")
+        print(f"Risco: {result['risk']}")
 
-    for reason in result["reasons"]:
-        print(f"Motivo: {reason}")
+        for reason in result["reasons"]:
+            print(f"Motivo: {reason}")
 
-    if mitre:
-        print("\n=== MITRE ATT&CK ===")
-        print(f"Tecnica: {mitre['technique_name']}")
-        print(f"ID: {mitre['technique_id']}")
-        print(f"Tatica: {mitre['tactic']}")
+        if mitre:
+            print(f"MITRE: {mitre['technique_id']} - {mitre['technique_name']}")
 
-    # 5. Gerar relatório
-    report_path = generate_report(event, result, mitre)
+        report_path = generate_report(event, result, mitre)
+        print(f"Relatório: {report_path}")
 
-    print("\n=== RELATORIO GERADO ===")
-    print(f"Arquivo: {report_path}")
+    statistics = generate_statistics(results)
+
+    print("\n=== RESUMO DA ANALISE ===")
+    print(f"Total de eventos: {statistics['total_events']}")
+    print(f"Eventos suspeitos: {statistics['suspicious_events']}")
+    print(f"Eventos normais: {statistics['normal_events']}")
+
+    print("\n=== DISTRIBUICAO DE RISCO ===")
+    for risk, count in statistics["risk_levels"].items():
+        print(f"{risk.upper()}: {count}")
 
 
 if __name__ == "__main__":

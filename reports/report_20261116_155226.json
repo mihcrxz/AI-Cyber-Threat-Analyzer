@@ -1,0 +1,25 @@
+{
+    "analysis_time": "2026-11-16T18:52:26.058559+00:00",
+    "event": {
+        "event_id": 1,
+        "process_name": "powershell.exe",
+        "command_line": "powershell.exe",
+        "parent_process": "winword.exe",
+        "user": "DESKTOP\\User",
+        "process_guid": "{55555555-5555-5555-5555-555555555555}",
+        "parent_process_guid": "{66666666-6666-6666-6666-666666666666}"
+    },
+    "detection": {
+        "suspicious": true,
+        "risk": "medium",
+        "reasons": [
+            "Processo de script iniciado pelo Microsoft Word"
+        ]
+    },
+    "mitre_attack": {
+        "technique_id": "T1059.001",
+        "technique_name": "PowerShell",
+        "tactic": "Execution",
+        "reference": "https://attack.mitre.org/techniques/T1059/001/"
+    }
+}

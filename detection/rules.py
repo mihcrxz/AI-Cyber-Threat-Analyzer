@@ -5,7 +5,24 @@ SUSPICIOUS_KEYWORDS = (
     "downloadstring",
     "invoke-expression",
     "mimikatz",
+    "-nop",
+    "-w hidden",
+    "-windowstyle hidden",
+    "-executionpolicy bypass",
 )
+
+OFFICE_PROCESSES = {
+    "winword.exe",
+    "excel.exe",
+    "outlook.exe",
+}
+
+SCRIPT_PROCESSES = {
+    "powershell.exe",
+    "cmd.exe",
+    "wscript.exe",
+    "cscript.exe",
+}
 
 
 def analyze_event(event: dict) -> dict:
@@ -24,18 +41,19 @@ def analyze_event(event: dict) -> dict:
             )
             risk = "high"
 
-    # Regra 2: Word iniciando processos de script
-    if parent == "winword.exe":
-        if process in {"powershell.exe", "cmd.exe", "wscript.exe"}:
-            reasons.append(
-                "Processo de script iniciado pelo Microsoft Word"
-            )
+    # Regra 2: Aplicativos Office iniciando processos de script
+    if parent in OFFICE_PROCESSES and process in SCRIPT_PROCESSES:
+        reasons.append(
+            "Aplicativo Office iniciou um processo de script"
+        )
 
-            if risk != "high":
-                risk = "medium"
+        if risk != "high":
+            risk = "medium"
 
     return {
         "suspicious": bool(reasons),
         "risk": risk,
         "reasons": reasons,
     }
+
+

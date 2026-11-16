@@ -3,13 +3,8 @@ import json
 from pathlib import Path
 
 
-def read_sysmon_event(file_path: str) -> dict:
-    path = Path(file_path)
-
-    with path.open("r", encoding="utf-8") as file:
-        event = json.load(file)
-
-    normalized_event = {
+def normalize_sysmon_event(event: dict) -> dict:
+    return {
         "event_id": event.get("EventID"),
         "process_name": Path(event.get("Image", "")).name.lower(),
         "command_line": event.get("CommandLine", ""),
@@ -19,4 +14,18 @@ def read_sysmon_event(file_path: str) -> dict:
         "parent_process_guid": event.get("ParentProcessGuid", ""),
     }
 
-    return normalized_event
+
+def read_sysmon_events(file_path: str) -> list:
+    path = Path(file_path)
+
+    with path.open("r", encoding="utf-8") as file:
+        events = json.load(file)
+
+    if not isinstance(events, list):
+        raise ValueError("O arquivo precisa conter uma lista de eventos.")
+
+    return [
+        normalize_sysmon_event(event)
+        for event in events
+    ]
+
