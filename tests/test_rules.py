@@ -39,5 +39,5 @@ def test_detects_script_started_by_word():
     result = analyze_event(event)
 
     assert result["suspicious"] is True
-    assert result["risk"] == "high"
+    assert result["risk"] == "medium"
     assert "Processo de script iniciado pelo Microsoft Word" in result["reasons"]

@@ -1,3 +1,4 @@
+
 SUSPICIOUS_KEYWORDS = (
     "-enc",
     "encodedcommand",
@@ -13,21 +14,28 @@ def analyze_event(event: dict) -> dict:
     parent = str(event.get("parent_process", "")).lower()
 
     reasons = []
+    risk = "low"
 
+    # Regra 1: PowerShell com argumentos suspeitos
     if process == "powershell.exe":
         if any(keyword in command_line for keyword in SUSPICIOUS_KEYWORDS):
             reasons.append(
                 "PowerShell executou um comando potencialmente suspeito"
             )
+            risk = "high"
 
+    # Regra 2: Word iniciando processos de script
     if parent == "winword.exe":
         if process in {"powershell.exe", "cmd.exe", "wscript.exe"}:
             reasons.append(
                 "Processo de script iniciado pelo Microsoft Word"
             )
 
+            if risk != "high":
+                risk = "medium"
+
     return {
         "suspicious": bool(reasons),
-        "risk": "high" if reasons else "low",
+        "risk": risk,
         "reasons": reasons,
     }
