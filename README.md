@@ -149,7 +149,7 @@ Run automated tests:
 pytest -v
 ```
 
-Current test suite: 12 passing tests.
+Current test suite: 16 passing tests.
 
 ## Security Considerations
 
