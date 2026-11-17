@@ -1,0 +1,25 @@
+
+title: Suspicious PowerShell Encoded Command
+id: 7f2a9c31-6b84-4d52-a831-91e4d2c70f15
+status: experimental
+description: Detects PowerShell execution using encoded command arguments.
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+author: AI Cyber Threat Analyzer
+date: 2026/11/16
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        Image|endswith: '\powershell.exe'
+        CommandLine|contains:
+            - '-enc'
+            - '-encodedcommand'
+    condition: selection
+falsepositives:
+    - Legitimate administrative scripts using encoded commands
+level: high

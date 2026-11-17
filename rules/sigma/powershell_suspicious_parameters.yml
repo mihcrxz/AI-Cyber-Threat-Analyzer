@@ -1,0 +1,31 @@
+
+title: PowerShell Suspicious Execution Parameters
+id: 3e8a1c72-5b49-4d61-a902-8f7c3b6e1254
+status: experimental
+description: Detects PowerShell commands using suspicious execution parameters.
+references:
+    - https://attack.mitre.org/techniques/T1059/001/
+author: AI Cyber Threat Analyzer
+date: 2026/11/16
+tags:
+    - attack.execution
+    - attack.t1059.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_process:
+        Image|endswith: '\powershell.exe'
+    selection_arguments:
+        CommandLine|contains:
+            - '-nop'
+            - '-w hidden'
+            - '-windowstyle hidden'
+            - '-executionpolicy bypass'
+            - 'downloadstring'
+            - 'invoke-expression'
+    condition: selection_process and selection_arguments
+falsepositives:
+    - Legitimate administrative scripts
+    - Authorized automation tools
+level: high

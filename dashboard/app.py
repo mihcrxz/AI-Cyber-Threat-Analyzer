@@ -113,6 +113,7 @@ if reports:
         event = report["event"]
         detection = report["detection"]
         mitre = report.get("mitre_attack")
+        sigma_alerts = report.get("sigma_alerts", [])
 
         alert_data.append({
             "Data": report["analysis_time"][:19].replace("T", " "),
@@ -123,6 +124,11 @@ if reports:
             "MITRE": (
                 mitre["technique_id"] if mitre else "Não mapeado"
             ),
+            "Regras Sigma": len(sigma_alerts),
+            "Sigma": ", ".join(
+                alert.get("rule", "Regra desconhecida")
+                for alert in sigma_alerts
+            ) if sigma_alerts else "Nenhuma",
             "Status": (
                 "Suspeito" if detection["suspicious"] else "Normal"
             )
@@ -206,6 +212,7 @@ if reports:
         event = selected_report["event"]
         detection = selected_report["detection"]
         mitre = selected_report.get("mitre_attack")
+        sigma_alerts = selected_report.get("sigma_alerts", [])
 
 
         st.markdown("### Resumo Executivo")
@@ -281,6 +288,24 @@ if reports:
             )
         else:
             st.info("Nenhuma técnica MITRE mapeada.")
+
+        st.markdown("### Sigma Detection")
+        
+        if sigma_alerts:
+            for alert in sigma_alerts:
+                with st.expander(
+                    f"{alert.get('rule', 'Regra Sigma')} "
+                    f"| {alert.get('level', 'unknown').upper()}"
+        ):
+                    st.write("**Nome da regra:**", alert.get("rule"))
+                    st.write("**ID:**", alert.get("rule_id"))
+                    st.write("**Severidade:**", alert.get("level", "").upper())
+                    st.write("**Arquivo:**", alert.get("source_file"))
+                    st.write("**Tags MITRE:**")
+                    for tag in alert.get("tags", []):
+                        st.markdown(f"- `{tag}`")
+        else:
+            st.info("Nenhuma regra Sigma foi acionada neste evento.")
 
         st.markdown("### Análise da IA")
 

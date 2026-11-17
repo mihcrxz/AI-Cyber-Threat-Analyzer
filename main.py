@@ -1,13 +1,13 @@
 
-
-
 from analyzer.sysmon_reader import read_sysmon_events
 from analyzer.report_generator import generate_report
 from analyzer.statistics import generate_statistics
 from detection.rules import analyze_event
 from detection.mitre_mapping import map_mitre_technique
+from detection.sigma_engine import analyze_with_sigma
 from analyzer.ai_analyzer import build_analysis_prompt
 from analyzer.ai_analyzer import generate_ai_analysis
+
 
 def main():
     print("=== AI CYBER THREAT ANALYZER ===")
@@ -15,15 +15,16 @@ def main():
     events = read_sysmon_events("data/sysmon_sample.json")
     results = []
 
-    
     for index, event in enumerate(events, start=1):
         result = analyze_event(event)
+        sigma_alerts = analyze_with_sigma(event)
         mitre = map_mitre_technique(event, result)
 
         prompt = build_analysis_prompt(event, result, mitre)
 
         print("\n=== PROMPT PARA ANÁLISE COM IA ===")
         print(prompt)
+
         ai_analysis = generate_ai_analysis(prompt)
 
         print("\n=== ANÁLISE GERADA PELA IA ===")
@@ -40,12 +41,31 @@ def main():
         for reason in result["reasons"]:
             print(f"Motivo: {reason}")
 
+        print("\n=== ALERTAS SIGMA ===")
+
+        if sigma_alerts:
+            for alert in sigma_alerts:
+                print(f"Regra: {alert['rule']}")
+                print(f"Severidade: {alert['level']}")
+                print(f"ID da regra: {alert['rule_id']}")
+        else:
+            print("Nenhum alerta Sigma identificado.")
+
         if mitre:
-            print(f"MITRE: {mitre['technique_id']} - {mitre['technique_name']}")
+            print(
+                f"MITRE: {mitre['technique_id']} - "
+                f"{mitre['technique_name']}"
+            )
 
-        report_path = generate_report(event, result, mitre, ai_analysis)
+        report_path = generate_report(
+            event,
+            result,
+            mitre,
+            ai_analysis,
+            sigma_alerts
+            )
+
         print(f"Relatório: {report_path}")
-
 
     statistics = generate_statistics(results)
 
@@ -55,6 +75,7 @@ def main():
     print(f"Eventos normais: {statistics['normal_events']}")
 
     print("\n=== DISTRIBUICAO DE RISCO ===")
+
     for risk, count in statistics["risk_levels"].items():
         print(f"{risk.upper()}: {count}")
 

@@ -1,0 +1,31 @@
+
+title: Office Application Spawning Script Process
+id: 9c4b2a71-8d35-4f62-a190-7e3c5b8d2146
+status: experimental
+description: Detects Microsoft Office applications spawning script interpreters.
+references:
+    - https://attack.mitre.org/techniques/T1059/
+author: AI Cyber Threat Analyzer
+date: 2026/11/16
+tags:
+    - attack.execution
+    - attack.t1059
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_parent:
+        ParentImage|endswith:
+            - '\winword.exe'
+            - '\excel.exe'
+            - '\outlook.exe'
+    selection_child:
+        Image|endswith:
+            - '\powershell.exe'
+            - '\cmd.exe'
+            - '\wscript.exe'
+            - '\cscript.exe'
+    condition: selection_parent and selection_child
+falsepositives:
+    - Legitimate Office automation
+level: medium

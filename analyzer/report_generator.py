@@ -8,7 +8,8 @@ def generate_report(
     event: dict,
     result: dict,
     mitre: dict | None,
-    ai_analysis: str
+    ai_analysis: str,
+    sigma_alerts: list | None = None
 ) -> str:
 
     report = {
@@ -16,6 +17,7 @@ def generate_report(
         "event": event,
         "detection": result,
         "mitre_attack": mitre,
+        "sigma_alerts": sigma_alerts or [],
         "ai_analysis": ai_analysis,
     }
 
@@ -29,3 +31,4 @@ def generate_report(
         json.dump(report, file, indent=4, ensure_ascii=False)
 
     return str(report_path)
+
