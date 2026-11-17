@@ -167,3 +167,14 @@ It is a portfolio project and is not a replacement for a production SIEM or prof
 ## Author
 
 Cybersecurity Student | Security Operations | AI Engineering
+
+## Dashboard Preview
+
+### Security Overview
+![Dashboard Overview](docs/images/dashboard-overview.png)
+
+### Alert History and Filters
+![Alert History](docs/images/alerts-history.png)
+
+### Individual Alert Investigation
+![Alert Investigation](docs/images/alert-investigation.png)
