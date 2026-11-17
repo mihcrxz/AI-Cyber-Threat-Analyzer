@@ -21,3 +21,17 @@ data/processed/
 # Sistema operacional
 .DS_Store
 Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local security reports
+reports/

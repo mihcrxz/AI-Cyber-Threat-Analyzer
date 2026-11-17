@@ -6,7 +6,8 @@ from analyzer.report_generator import generate_report
 from analyzer.statistics import generate_statistics
 from detection.rules import analyze_event
 from detection.mitre_mapping import map_mitre_technique
-
+from analyzer.ai_analyzer import build_analysis_prompt
+from analyzer.ai_analyzer import generate_ai_analysis
 
 def main():
     print("=== AI CYBER THREAT ANALYZER ===")
@@ -18,7 +19,16 @@ def main():
         result = analyze_event(event)
         mitre = map_mitre_technique(event["process_name"])
 
+        prompt = build_analysis_prompt(event, result, mitre)
+
+        print("\n=== PROMPT PARA ANÁLISE COM IA ===")
+        print(prompt)
+        ai_analysis = generate_ai_analysis(prompt)
+        print("\n=== ANÁLISE GERADA PELA IA ===")
+        print(ai_analysis)
+
         results.append(result)
+
 
         print(f"\n=== EVENTO {index} ===")
         print(f"Processo: {event['process_name']}")
@@ -32,7 +42,7 @@ def main():
         if mitre:
             print(f"MITRE: {mitre['technique_id']} - {mitre['technique_name']}")
 
-        report_path = generate_report(event, result, mitre)
+        report_path = generate_report(event, result, mitre, ai_analysis)
         print(f"Relatório: {report_path}")
 
     statistics = generate_statistics(results)
