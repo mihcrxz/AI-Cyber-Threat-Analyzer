@@ -15,20 +15,21 @@ def main():
     events = read_sysmon_events("data/sysmon_sample.json")
     results = []
 
+    
     for index, event in enumerate(events, start=1):
         result = analyze_event(event)
-        mitre = map_mitre_technique(event["process_name"])
+        mitre = map_mitre_technique(event, result)
 
         prompt = build_analysis_prompt(event, result, mitre)
 
         print("\n=== PROMPT PARA ANÁLISE COM IA ===")
         print(prompt)
         ai_analysis = generate_ai_analysis(prompt)
+
         print("\n=== ANÁLISE GERADA PELA IA ===")
         print(ai_analysis)
 
         results.append(result)
-
 
         print(f"\n=== EVENTO {index} ===")
         print(f"Processo: {event['process_name']}")
@@ -44,6 +45,7 @@ def main():
 
         report_path = generate_report(event, result, mitre, ai_analysis)
         print(f"Relatório: {report_path}")
+
 
     statistics = generate_statistics(results)
 

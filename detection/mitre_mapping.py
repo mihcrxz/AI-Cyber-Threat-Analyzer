@@ -15,13 +15,38 @@ MITRE_MAPPING = {
 }
 
 
-def map_mitre_technique(process_name: str) -> dict | None:
-    process = process_name.lower()
+def map_mitre_technique(event: dict, detection: dict) -> dict | None:
+    process = str(event.get("process_name", "")).lower()
+    parent = str(event.get("parent_process", "")).lower()
+
+    suspicious = detection.get("suspicious", False)
+    risk = detection.get("risk", "low")
+    reasons = detection.get("reasons", [])
+
+    # Não associa técnicas quando não existem evidências de suspeita.
+    if not suspicious or not reasons:
+        return None
+
+    technique = None
 
     if process == "powershell.exe":
-        return MITRE_MAPPING["powershell"]
+        technique = MITRE_MAPPING["powershell"]
 
-    if process == "cmd.exe":
-        return MITRE_MAPPING["command_interpreter"]
+    elif process == "cmd.exe" and parent in {
+        "winword.exe",
+        "excel.exe",
+        "outlook.exe",
+    }:
+        technique = MITRE_MAPPING["command_interpreter"]
 
-    return None
+    if technique is None:
+        return None
+
+    confidence = "high" if risk == "high" else "medium"
+
+    return {
+        **technique,
+        "confidence": confidence,
+        "evidence": reasons,
+        "detection_risk": risk,
+    }

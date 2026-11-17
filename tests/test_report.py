@@ -26,7 +26,14 @@ def test_generate_report_creates_json_file(tmp_path, monkeypatch):
         "tactic": "Execution",
     }
 
-    report_path = generate_report(event, result, mitre)
+    report_path = generate_report(
+    event,
+    result,
+    mitre,
+    "Análise de IA de teste"
+)
+
+    
 
     assert Path(report_path).exists()
     assert report_path.endswith(".json")
@@ -39,7 +46,12 @@ def test_report_contains_correct_data(tmp_path, monkeypatch):
     result = {"suspicious": True, "risk": "high"}
     mitre = {"technique_id": "T1059.001"}
 
-    report_path = generate_report(event, result, mitre)
+    report_path = generate_report(
+    event,
+    result,
+    mitre,
+    "Análise de IA de teste"
+)
 
     with open(report_path, "r", encoding="utf-8") as file:
         report = json.load(file)

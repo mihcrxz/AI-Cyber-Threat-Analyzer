@@ -33,8 +33,8 @@ def analyze_security_event(event: SecurityEvent):
 
     result = analyze_event(event_data)
 
-    mitre = map_mitre_technique(event_data["process_name"])
-
+    mitre = map_mitre_technique(event_data, result)
+    
     return {
         "event": event_data,
         "detection": result,
